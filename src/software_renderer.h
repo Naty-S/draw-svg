@@ -290,6 +290,7 @@ private:
 	std::vector<unsigned char> sample_buffer; int w; int h;
 	void fill_sample(float sx, float sy, const Color& c, void* thread_data = NULL);
 	void fill_pixel(int x, int y, const Color& c, void* thread_data = NULL);
+	void set_color(int x, int y, Color c, int r, int g, int b, int a);
 
 	// SSAA render target
 	std::vector<unsigned char> supersample_target;

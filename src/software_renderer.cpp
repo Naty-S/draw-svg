@@ -44,6 +44,15 @@ void SoftwareRendererImp::fill_pixel(int x, int y, const Color &color) {
 
 }
 
+void SoftwareRendererImp::set_color(int x, int y, Color color, int r, int g,
+                                    int b, int a)
+{
+  render_target[4 * (x + y * target_w)] = (uint8_t)(color.r * r);
+  render_target[4 * (x + y * target_w) + 1] = (uint8_t)(color.g * g);
+  render_target[4 * (x + y * target_w) + 2] = (uint8_t)(color.b * b);
+  render_target[4 * (x + y * target_w) + 3] = (uint8_t)(color.a * a);
+}
+
 void SoftwareRendererImp::draw_svg( SVG& svg ) {
 
   // set top level transformation
@@ -262,11 +271,7 @@ void SoftwareRendererImp::rasterize_point( float x, float y, Color color ) {
 
   // fill sample - NOT doing alpha blending!
   // TODO: Call fill_pixel here to run alpha blending
-  render_target[4 * (sx + sy * target_w)] = (uint8_t)(color.r * 255);
-  render_target[4 * (sx + sy * target_w) + 1] = (uint8_t)(color.g * 255);
-  render_target[4 * (sx + sy * target_w) + 2] = (uint8_t)(color.b * 255);
-  render_target[4 * (sx + sy * target_w) + 3] = (uint8_t)(color.a * 255);
-
+  set_color(sx, sy, color, 255, 0, 0, 255);
 }
 
 void SoftwareRendererImp::rasterize_line( float x0, float y0,
@@ -284,8 +289,11 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
                                               Color color ) {
   // Task 1: 
   // Implement triangle rasterization (you may want to call fill_sample here)
-  
-
+  // for (int i = 0; i < target_w; i++) {
+  //   for (int j = 0; j < target_h; j++) {
+  //     if (inTriangle(i, j)) render_target[i][j] = color;
+  //   }
+  // }
 }
 
 void SoftwareRendererImp::rasterize_image( float x0, float y0,
