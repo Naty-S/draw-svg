@@ -37,7 +37,9 @@ void SoftwareRendererImp::fill_pixel(int x, int y, const Color &color) {
 
 	pixel_color = ref->alpha_blending_helper(pixel_color, color);
 
-	render_target[4 * (x + y * target_w)] = (uint8_t)(pixel_color.r * 255);
+  // set_color(x, y, pixel_color, 255, 255, 255, 255);
+
+  render_target[4 * (x + y * target_w)] = (uint8_t)(pixel_color.r * 255);
 	render_target[4 * (x + y * target_w) + 1] = (uint8_t)(pixel_color.g * 255);
 	render_target[4 * (x + y * target_w) + 2] = (uint8_t)(pixel_color.b * 255);
 	render_target[4 * (x + y * target_w) + 3] = (uint8_t)(pixel_color.a * 255);
@@ -271,7 +273,7 @@ void SoftwareRendererImp::rasterize_point( float x, float y, Color color ) {
 
   // fill sample - NOT doing alpha blending!
   // TODO: Call fill_pixel here to run alpha blending
-  set_color(sx, sy, color, 255, 0, 0, 255);
+  set_color(sx, sy, color, 255, 255, 255, 255);
 }
 
 void SoftwareRendererImp::rasterize_line( float x0, float y0,
@@ -287,13 +289,45 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
                                               float x1, float y1,
                                               float x2, float y2,
                                               Color color ) {
-  // Task 1: 
+  // Task 1:
   // Implement triangle rasterization (you may want to call fill_sample here)
-  // for (int i = 0; i < target_w; i++) {
-  //   for (int j = 0; j < target_h; j++) {
-  //     if (inTriangle(i, j)) render_target[i][j] = color;
-  //   }
-  // }
+  float x, y;
+  vector<Vector2D> points {Vector2D(x0,y0), Vector2D(x1,y1), Vector2D(x2,y2)};
+
+  auto inTriangle = [&points](float xi, float yj) {
+    bool is_in = false;
+    Vector2D current, next, N, V, p = Vector2D(xi,yj);
+
+    for (int i = 0; i < 2; i++){
+      current = points[i]; // los puntos
+      next    = points[(i+1) % 2];
+      N       = Vector2D(next.y - current.y, -(next.x - current.x)); // la normal
+      V       = p - current;
+      is_in   = is_in && !(dot(N,V) < 0);
+    }
+    return is_in;
+  };
+
+  for (int i = 0; i < target_w; i++) {
+    for (int j = 0; j < target_h; j++) {
+      x = i + 0.5;
+      y = j + 0.5;
+      if (inTriangle(x, y)) {
+        int sx = (int)floor(x);
+        int sy = (int)floor(y);
+        // int sx0 = (int)floor(x0);
+        // int sy0 = (int)floor(y0);
+        // int sx1 = (int)floor(x1);
+        // int sy1 = (int)floor(y1);
+        // int sx2 = (int)floor(x2);
+        // int sy2 = (int)floor(y2);
+        set_color(sx, sy, color, 255, 255, 255, 255);
+        // set_color(sx0, sy0, color, 255, 255, 255, 255);
+        // set_color(sx1, sy1, color, 255, 255, 255, 255);
+        // set_color(sx2, sy2, color, 255, 255, 255, 255);
+      }
+    }
+  }
 }
 
 void SoftwareRendererImp::rasterize_image( float x0, float y0,
